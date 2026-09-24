@@ -98,6 +98,9 @@ module gcd (
       restart: begin
         next_state = idle;
       end
+      default begin
+        next_state = idle;
+      end
     endcase
   end
 
