@@ -25,7 +25,8 @@ module gcd (
     load_A,
     finished_load,
     load_B,
-    compute,
+    smallestA,
+    smallestB,
     subtract_A,
     subtract_B,
     output_C,
@@ -35,8 +36,9 @@ module gcd (
   shortint unsigned reg_a, next_reg_a, reg_b, next_reg_b;
 
   state_t state, next_state;
-  logic a_larger_than_b, b_larger_than_a;
+  logic comparer_out;
   logic [15:0] subber_src1, subber_src2, subber_out;
+  logic [15:0] comparer_src1, comparer_src2;
 
   // Combinatorial logic
   always_comb begin
@@ -47,9 +49,8 @@ module gcd (
     C = 0;
     subber_src1 = 16'b0;
     subber_src2 = 16'b0;
-
-    a_larger_than_b = reg_a > reg_b;
-    b_larger_than_a = reg_b > reg_a;
+    comparer_src1 = 16'b0;
+    comparer_src2 = 16'b0;
 
     case (state)
       // <COMBINATORIAL BODY> 
@@ -72,13 +73,22 @@ module gcd (
       end
       load_B: begin
         next_reg_b = AB;
-        next_state = compute;
+        next_state = smallestA;
       end
-      compute: begin
-        if (a_larger_than_b) begin
-          next_state = subtract_A;
-        end else if (b_larger_than_a) begin
+      smallestA: begin
+        comparer_src1 = reg_a;
+        comparer_src2 = reg_b;
+        if (comparer_out) begin
           next_state = subtract_B;
+        end else begin
+          next_state = smallestB;
+        end
+      end
+      smallestB: begin
+        comparer_src1 = reg_b;
+        comparer_src2 = reg_a;
+        if (comparer_out) begin
+          next_state = subtract_A;
         end else begin
           next_state = output_C;
         end
@@ -86,14 +96,14 @@ module gcd (
       subtract_A: begin
         subber_src1 = reg_a;
         subber_src2 = reg_b;
-        next_reg_a = subber_out;
-        next_state = compute;
+        next_reg_a  = subber_out;
+        next_state  = smallestA;
       end
       subtract_B: begin
         subber_src1 = reg_b;
         subber_src2 = reg_a;
         next_reg_b = subber_out;
-        next_state = compute;
+        next_state = smallestA;
       end
       output_C: begin
         C = reg_a;
@@ -126,5 +136,6 @@ module gcd (
   end
 
   assign subber_out = subber_src1 - subber_src2;
+  assign comparer_out = comparer_src1 < comparer_src2;
 
 endmodule
