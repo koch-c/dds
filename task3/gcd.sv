@@ -36,6 +36,7 @@ module gcd (
 
   state_t state, next_state;
   logic a_larger_than_b, b_larger_than_a;
+  logic [15:0] subber_src1, subber_src2, subber_out;
 
   // Combinatorial logic
   always_comb begin
@@ -44,6 +45,8 @@ module gcd (
     next_reg_b = reg_b;
     ack = 0;
     C = 0;
+    subber_src1 = 16'b0;
+    subber_src2 = 16'b0;
 
     a_larger_than_b = reg_a > reg_b;
     b_larger_than_a = reg_b > reg_a;
@@ -81,11 +84,15 @@ module gcd (
         end
       end
       subtract_A: begin
-        next_reg_a = reg_a - reg_b;
+        subber_src1 = reg_a;
+        subber_src2 = reg_b;
+        next_reg_a = subber_out;
         next_state = compute;
       end
       subtract_B: begin
-        next_reg_b = reg_b - reg_a;
+        subber_src1 = reg_b;
+        subber_src2 = reg_a;
+        next_reg_b = subber_out;
         next_state = compute;
       end
       output_C: begin
@@ -117,5 +124,7 @@ module gcd (
       state <= next_state;
     end
   end
+
+  assign subber_out = subber_src1 - subber_src2;
 
 endmodule
