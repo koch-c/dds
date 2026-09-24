@@ -102,11 +102,11 @@ module gcd (
       subtract_B: begin
         subber_src1 = reg_b;
         subber_src2 = reg_a;
-        next_reg_b = subber_out;
-        next_state = smallestA;
+        next_reg_b  = subber_out;
+        next_state  = smallestA;
       end
       output_C: begin
-        C = reg_a;
+        C   = reg_a;
         ack = 1;
         if (!req) begin
           next_state = restart;
@@ -135,7 +135,7 @@ module gcd (
     end
   end
 
-  assign subber_out = subber_src1 - subber_src2;
+  assign subber_out   = subber_src1 - subber_src2;
   assign comparer_out = comparer_src1 < comparer_src2;
 
 endmodule
